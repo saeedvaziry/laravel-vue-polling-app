@@ -1,0 +1,218 @@
+$bg: #EEEFF1;
+$red: #dc3545;
+$primary: #455A64;
+$primaryDark: #33568a;
+$success: #4dcb9f;
+
+@import "bootstrap/scss/bootstrap.scss";
+@import "toastr.scss";
+
+body {
+  background: $bg;
+}
+
+.ltr {
+  direction: ltr;
+}
+
+.header {
+  background-color: $primary;
+  height: 69px;
+  line-height: 50px;
+  font-size: 19px;
+  box-shadow: 0 -1.8em 0.3em 1.9em rgba(0, 0, 0, .3);
+  z-index: 11;
+  width: 100%;
+  color: #fff;
+  font-weight: 400;
+
+  a {
+    color: #fff;
+  }
+
+  a:hover {
+    text-decoration: none
+  }
+}
+
+.content {
+  margin-top: 50px;
+}
+
+.btn:hover,
+.btn:active,
+.btn:visited,
+.btn:not(:disabled):not(.disabled):active:focus,
+.btn:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.invalid {
+  border-color: $red;
+}
+
+.minicolors-theme-bootstrap .minicolors-swatch {
+  top: 5px;
+}
+
+.minicolors-position-left .minicolors-panel {
+  direction: ltr;
+}
+
+.form-group .file-upload {
+  width: 100%;
+  height: 40px;
+  position: relative;
+}
+
+.form-group .file-upload:after {
+  width: 100%;
+  height: 40px;
+  padding-right: 10px;
+  overflow: hidden;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 5;
+  line-height: 40px;
+  text-align: right;
+  direction: ltr;
+  color: #5e6c7d;
+  transition: all .3s ease-in-out;
+  background-color: #f8f9fa;
+  border-radius: 3px 0 0 3px;
+  content: attr(data-text);
+  border: 1px solid #ced4da;
+}
+
+.form-group .file-upload:hover:after {
+  color: #434343;
+  background-color: #f6f6f6;
+}
+
+.form-group .file-upload:before {
+  width: 80px;
+  height: 40px;
+  padding: 0 15px;
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  line-height: 40px;
+  text-transform: uppercase;
+  text-align: center;
+  pointer-events: none;
+  color: #fefefe;
+  transition: all .3s ease-in-out;
+  border-radius: 0 3px 3px 0;
+  background-color: $primary;
+  content: 'انتخاب';
+}
+
+.form-group .file-upload:hover:before {
+  background-color: $primary;
+}
+
+.form-group .file-upload input {
+  width: 100%;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  display: block;
+  position: absolute;
+  cursor: pointer;
+  opacity: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 15;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border: 1px solid #ced4da;
+}
+
+.navbar-nav {
+  li {
+    margin-right: 20px;
+
+    a {
+      display: block
+    }
+
+    a:hover {
+      text-decoration: none;
+      color: #c4c4c4;
+    }
+  }
+}
+
+.card {
+  margin-bottom: 10px;
+  box-shadow: 0px 4px 20px -10px #afafaf;
+}
+
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9000;
+  background-color: $bg;
+
+  div {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background: url("../images/loading.gif") no-repeat center;
+    background-size: contain;
+  }
+}
+
+.btn-action {
+  position: absolute;
+  left: 18px;
+  top: 0;
+  line-height: 18px;
+  height: 30px;
+}
+
+.margin-top-20 {
+  margin-top: 20px;
+}
+
+.disabled-answer {
+  position: relative;
+  padding: .375rem 4.75rem;
+
+  .percent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: #000;
+    opacity: 0.3;
+  }
+
+  .stat-info {
+    position: absolute;
+    height: 100%;
+    left: 10px;
+    font-size: 16px;
+    font-weight: 400;
+  }
+}
+
+.anychart-credits{
+  display: none;
+}
