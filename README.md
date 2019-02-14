@@ -38,6 +38,7 @@ Javascript, Vue.js 2, Vue-Router, Bootstrap, Sass
 - Clone the project
 - Run `composer install`
 - Run `php artisan migrate:refresh --seed`
+- Run `php artisan serve` to serve application on `localhost:8000`
 
 ### Front-End
 
