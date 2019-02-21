@@ -4,7 +4,7 @@ $primary: #455A64;
 $primaryDark: #33568a;
 $success: #4dcb9f;
 
-@import "bootstrap/scss/bootstrap.scss";
+@import "~bootstrap/scss/bootstrap.scss";
 @import "toastr.scss";
 
 body {
@@ -174,7 +174,7 @@ body {
     transform: translate(-50%, -50%);
     width: 100px;
     height: 100px;
-    background: url("../images/loading.gif") no-repeat center;
+    background: url("../img/loading.gif") no-repeat center;
     background-size: contain;
   }
 }
@@ -213,6 +213,35 @@ body {
   }
 }
 
-.anychart-credits{
+.anychart-credits {
   display: none;
+}
+
+.poll {
+  background: #fff;
+  margin-bottom: 10px;
+  box-shadow: 0 0 4px -1px #969696;
+  border-radius: 6px;
+  transition: all 0.2s;
+  position: relative;
+
+  a {
+    display: block;
+    padding: 13px 20px;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  span {
+    position: absolute;
+    right: 10px;
+    top: 15px;
+  }
+}
+
+.poll:hover {
+  cursor: pointer;
+  box-shadow: 0 0 10px 0px #969696;
 }
