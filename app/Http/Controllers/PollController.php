@@ -3,42 +3,56 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\User;
 use App\Poll;
-use App\Vote;
 use App\Notifications\PollCreated;
 
 class PollController extends Controller
 {
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function all()
+    {
+        $polls = Poll::orderBy('id', 'desc')->withCount('votes')->get();
+
+        return response()->json(compact('polls'));
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         $rules = [
             'question' => 'required',
-            'answers' => 'required',
-            'email' => 'required|email'
+            'answers'  => 'required',
+            'email'    => 'required|email'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json([
-                'error' => 'validation failed',
+                'error'   => 'validation failed',
                 'message' => $validator->errors()->first()
             ], 422);
         }
 
         if (!is_array($request->answers)) {
             return response()->json([
-                'error' => 'validation error',
+                'error'   => 'validation error',
                 'message' => __('Answers format is wrong')
             ], 422);
         }
 
         $user = User::where('email', '=', $request->email)->first();
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
             if (!$user) {
                 $user = User::create([
-                    'email' => $request->email,
+                    'email'    => $request->email,
                     'password' => 'not_set'
                 ]);
             }
@@ -55,39 +69,44 @@ class PollController extends Controller
                             'answer' => $answer
                         ]);
                     } else {
-                        \DB::rollback();
+                        DB::rollback();
 
                         return response()->json([
-                            'error' => 'validation error',
+                            'error'   => 'validation error',
                             'message' => __('Duplicate answer')
                         ], 422);
                     }
                 } else {
-                    \DB::rollback();
+                    DB::rollback();
 
                     return response()->json([
-                        'error' => 'validation error',
+                        'error'   => 'validation error',
                         'message' => __('Answers format is wrong')
                     ], 422);
                 }
             }
 
-            \DB::commit();
+            DB::commit();
 
             $user->notify(new PollCreated($poll));
 
             return response()->json([
                 'message' => __('Poll created'),
-                'poll' => $poll,
-                'token' => $poll->token
+                'poll'    => $poll,
+                'token'   => $poll->token
             ]);
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
 
             return handle_front_exception($e);
         }
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function get(Request $request, $id)
     {
         $poll = Poll::where('id', '=', $id)->with('answers')->first();
@@ -95,14 +114,14 @@ class PollController extends Controller
         if ($poll) {
             $rules = [
                 'hardwareConcurrency' => 'required',
-                'language' => 'required',
-                'platform' => 'required',
-                'timezone' => 'required'
+                'language'            => 'required',
+                'platform'            => 'required',
+                'timezone'            => 'required'
             ];
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
-                    'error' => 'validation failed',
+                    'error'   => 'validation failed',
                     'message' => 'Validation Error'
                 ], 422);
             }
@@ -125,11 +144,16 @@ class PollController extends Controller
         }
 
         return response()->json([
-            'error' => 'not found',
+            'error'   => 'not found',
             'message' => __('Not found')
         ], 404);
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function vote(Request $request, $id)
     {
         $poll = Poll::where('id', '=', $id)->first();
@@ -141,27 +165,27 @@ class PollController extends Controller
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
-                    'error' => 'validation failed',
+                    'error'   => 'validation failed',
                     'message' => $validator->errors()->first()
                 ], 422);
             }
 
             $rules = [
                 'hardwareConcurrency' => 'required',
-                'language' => 'required',
-                'platform' => 'required',
-                'timezone' => 'required'
+                'language'            => 'required',
+                'platform'            => 'required',
+                'timezone'            => 'required'
             ];
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
-                    'error' => 'validation failed',
+                    'error'   => 'validation failed',
                     'message' => 'Validation Error'
                 ], 422);
             }
 
             try {
-                return \DB::transaction(function () use ($poll, $request) {
+                return DB::transaction(function () use ($poll, $request) {
                     $vote = $poll->votes()->where(function ($query) use ($request) {
                         $query->where('ip', '=', $request->ip())
                             ->where('country', '=', ip_to_country($request->ip()))
@@ -173,21 +197,21 @@ class PollController extends Controller
 
                     if ($vote) {
                         return response()->json([
-                            'error' => 'you already voted',
+                            'error'   => 'you already voted',
                             'message' => __('You already voted')
                         ], 422);
                     }
 
                     $vote = $poll->votes()->create([
-                        'answer_id' => $request->answer_id,
-                        'ip' => $request->ip(),
-                        'country' => ip_to_country($request->ip()),
-                        'language' => $request->language,
-                        'color_depth' => $request->colorDepth,
+                        'answer_id'            => $request->answer_id,
+                        'ip'                   => $request->ip(),
+                        'country'              => ip_to_country($request->ip()),
+                        'language'             => $request->language,
+                        'color_depth'          => $request->colorDepth,
                         'hardware_concurrency' => $request->hardwareConcurrency,
-                        'timezone_offset' => $request->timezoneOffset,
-                        'timezone' => $request->timezone,
-                        'platform' => $request->platform,
+                        'timezone_offset'      => $request->timezoneOffset,
+                        'timezone'             => $request->timezone,
+                        'platform'             => $request->platform,
                     ]);
 
                     $poll['answers'] = $poll->answers;
@@ -196,7 +220,7 @@ class PollController extends Controller
 
                     return response()->json([
                         'message' => __('Your vote submited'),
-                        'poll' => $poll
+                        'poll'    => $poll
                     ]);
                 });
             } catch (\Exception $e) {
@@ -205,12 +229,16 @@ class PollController extends Controller
         }
 
         return response()->json([
-            'error' => 'not found',
+            'error'   => 'not found',
             'message' => __('Not found')
         ], 404);
     }
 
-    public function manage(Request $request, $token)
+    /**
+     * @param $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function manage($token)
     {
         $poll = Poll::where('token', '=', $token)->with('answers')->first();
 
@@ -221,11 +249,16 @@ class PollController extends Controller
         }
 
         return response()->json([
-            'error' => 'not found',
+            'error'   => 'not found',
             'message' => __('Not found')
         ], 404);
     }
 
+    /**
+     * @param $token
+     * @param $status
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function manageStatus($token, $status)
     {
         $poll = Poll::where('token', '=', $token)->with('answers')->first();
@@ -249,23 +282,27 @@ class PollController extends Controller
         }
 
         return response()->json([
-            'error' => 'not found',
+            'error'   => 'not found',
             'message' => __('Not found')
         ], 404);
     }
 
+    /**
+     * @param Poll $poll
+     * @return mixed
+     */
     private function stats(Poll $poll)
     {
-        $votes = \DB::table('votes')
+        $votes = DB::table('votes')
             ->where('poll_id', '=', $poll->id)
             ->groupBy('answer_id')
-            ->select(\DB::raw('answer_id, count(*) as total'))
+            ->select(DB::raw('answer_id, count(*) as total'))
             ->get();
 
         $totalVotes = $poll->votes()->count();
 
         foreach ($votes as $vote) {
-            $vote->percent = ((float) $vote->total / $totalVotes) * 100;
+            $vote->percent = ((float)$vote->total / $totalVotes) * 100;
         }
 
         return $votes;
